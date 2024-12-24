@@ -1,0 +1,38 @@
+2024-12-24T13:52:11.035+01:00  INFO 17812 --- [main] c.e.u.DdmdemoApplication                 : Starting DdmdemoApplication using Java 22 with PID 17812 (C:\Users\Milica\udd\udd\UDD-back\target\classes started by Milica in C:\Users\Milica\udd\udd\UDD-back)
+2024-12-24T13:52:11.037+01:00  INFO 17812 --- [main] c.e.u.DdmdemoApplication                 : No active profile set, falling back to 1 default profile: "default"
+2024-12-24T13:52:11.801+01:00  INFO 17812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2024-12-24T13:52:11.802+01:00  INFO 17812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Elasticsearch repositories in DEFAULT mode.
+2024-12-24T13:52:11.844+01:00  INFO 17812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 37 ms. Found 1 Elasticsearch repository interfaces.
+2024-12-24T13:52:12.040+01:00  INFO 17812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2024-12-24T13:52:12.041+01:00  INFO 17812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Reactive Elasticsearch repositories in DEFAULT mode.
+2024-12-24T13:52:12.065+01:00  INFO 17812 --- [main] .RepositoryConfigurationExtensionSupport : Spring Data Reactive Elasticsearch - Could not safely identify store assignment for repository candidate interface com.example.udd_security_incidents.repository.DummyRepository; If you want this repository to be a Reactive Elasticsearch repository, consider annotating your entities with one of these annotations: org.springframework.data.elasticsearch.annotations.Document (preferred), or consider extending one of the following types with your repository: org.springframework.data.elasticsearch.repository.ReactiveElasticsearchRepository
+2024-12-24T13:52:12.066+01:00  INFO 17812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 24 ms. Found 0 Reactive Elasticsearch repository interfaces.
+2024-12-24T13:52:12.074+01:00  INFO 17812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2024-12-24T13:52:12.076+01:00  INFO 17812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-12-24T13:52:12.092+01:00  INFO 17812 --- [main] .RepositoryConfigurationExtensionSupport : Spring Data JPA - Could not safely identify store assignment for repository candidate interface com.example.udd_security_incidents.indexrepository.DummyIndexRepository; If you want this repository to be a JPA repository, consider annotating your entities with one of these annotations: jakarta.persistence.Entity, jakarta.persistence.MappedSuperclass (preferred), or consider extending one of the following types with your repository: org.springframework.data.jpa.repository.JpaRepository
+2024-12-24T13:52:12.103+01:00  INFO 17812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 22 ms. Found 1 JPA repository interfaces.
+2024-12-24T13:52:12.333+01:00  INFO 17812 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=ca9ef6c3-4fcf-3586-9c75-dd581c5ef239
+2024-12-24T13:52:12.845+01:00  INFO 17812 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2024-12-24T13:52:12.856+01:00  INFO 17812 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-12-24T13:52:12.857+01:00  INFO 17812 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.15]
+2024-12-24T13:52:12.999+01:00  INFO 17812 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-12-24T13:52:12.999+01:00  INFO 17812 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1916 ms
+2024-12-24T13:52:13.204+01:00  INFO 17812 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-12-24T13:52:13.286+01:00  INFO 17812 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.13.Final
+2024-12-24T13:52:13.289+01:00  INFO 17812 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2024-12-24T13:52:13.645+01:00  INFO 17812 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-12-24T13:52:13.680+01:00  INFO 17812 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-12-24T13:52:13.913+01:00  INFO 17812 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@24a3d414
+2024-12-24T13:52:13.914+01:00  INFO 17812 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-12-24T13:52:13.972+01:00  WARN 17812 --- [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-12-24T13:52:14.963+01:00  INFO 17812 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-12-24T13:52:15.042+01:00  INFO 17812 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-12-24T13:52:18.761+01:00  INFO 17812 --- [main] ai.djl.pytorch.engine.PtEngine           : PyTorch graph executor optimizer is enabled, this may impact your inference latency and throughput. See: https://docs.djl.ai/docs/development/inference_performance_optimization.html#graph-executor-optimization
+2024-12-24T13:52:18.776+01:00  INFO 17812 --- [main] ai.djl.pytorch.engine.PtEngine           : Number of inter-op threads is 16
+2024-12-24T13:52:18.777+01:00  INFO 17812 --- [main] ai.djl.pytorch.engine.PtEngine           : Number of intra-op threads is 8
+2024-12-24T13:52:19.111+01:00  INFO 17812 --- [main] ai.djl.util.Platform                     : Found matching platform from: jar:file:/C:/Users/Milica/.m2/repository/ai/djl/huggingface/tokenizers/0.28.0/tokenizers-0.28.0.jar!/native/lib/tokenizers.properties
+2024-12-24T13:52:20.010+01:00  INFO 17812 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2024-12-24T13:52:20.334+01:00  INFO 17812 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2024-12-24T13:52:20.346+01:00  INFO 17812 --- [main] c.e.u.DdmdemoApplication                 : Started DdmdemoApplication in 9.803 seconds (process running for 11.677)
+2024-12-24T14:52:16.906+01:00  WARN 17812 --- [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=52m2s756ms617µs200ns).
+2024-12-24T15:22:32.883+01:00  WARN 17812 --- [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=20m15s814ms998µs400ns).
