@@ -1,0 +1,42 @@
+<div class="upload-container">
+    <h1>Upload PDF Document</h1>
+    <input type="file" (change)="onFileSelected($event)" accept=".pdf" />
+    <button (click)="onUpload()" [disabled]="!selectedFile">Upload</button>
+  </div>
+  
+  <div *ngIf="isFileUploaded" class="form-container">
+    <h2>Document Data</h2>
+    <form [formGroup]="documentForm" (ngSubmit)="onSubmit()">
+      <div>
+        <label for="employeeName">Employee Name</label>
+        <input id="employeeName" formControlName="employeeName" />
+      </div>
+      <div>
+        <label for="employeeSurname">Employee Surname</label>
+        <input id="employeeSurname" formControlName="employeeSurname" />
+      </div>
+      <div>
+        <label for="securityOrganization">Security Organization</label>
+        <input id="securityOrganization" formControlName="securityOrganization" />
+      </div>
+      <div>
+        <label for="affectedOrganization">Affected Organization</label>
+        <input id="affectedOrganization" formControlName="affectedOrganization" />
+      </div>
+      <div>
+        <label for="severity">Severity</label>
+        <select id="severity" formControlName="severity">
+          <option value="NISKA">NISKA</option>
+          <option value="SREDNJA">SREDNJA</option>
+          <option value="VISOKA">VISOKA</option>
+          <option value="KRITICNA">KRITICNA</option>
+        </select>
+      </div>
+      <div>
+        <label for="affectedOrganizationAddress">Affected Organization Address</label>
+        <input id="affectedOrganizationAddress" formControlName="affectedOrganizationAddress" />
+      </div>
+      <button type="submit">Confirm</button>
+    </form>
+  </div>
+  

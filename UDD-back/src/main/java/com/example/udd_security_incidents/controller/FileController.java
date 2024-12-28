@@ -36,4 +36,6 @@ public class FileController {
             .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(Path.of(filename)))
             .body(new InputStreamResource(minioResponse));
     }
+
+
 }
