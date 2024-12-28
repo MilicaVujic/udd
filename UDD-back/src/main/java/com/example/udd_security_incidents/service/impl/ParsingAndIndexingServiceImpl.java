@@ -1,10 +1,15 @@
 package com.example.udd_security_incidents.service.impl;
 
+import ai.djl.translate.TranslateException;
 import com.example.udd_security_incidents.dto.DocumentContentDto;
+import com.example.udd_security_incidents.dto.IndexCreationDto;
 import com.example.udd_security_incidents.exceptionhandling.exception.LoadingException;
+import com.example.udd_security_incidents.indexmodel.IncidentIndex;
+import com.example.udd_security_incidents.indexrepository.IncidentIndexRepository;
 import com.example.udd_security_incidents.model.Severity;
 import com.example.udd_security_incidents.service.interfaces.FileService;
 import com.example.udd_security_incidents.service.interfaces.ParsingAndIndexingService;
+import com.example.udd_security_incidents.util.VectorizationUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -13,19 +18,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @Slf4j
 public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService {
-    @Autowired
     private final FileService fileService;
+    private final IncidentIndexRepository incidentIndexRepository;
 
     @Autowired
-    public ParsingAndIndexingServiceImpl(FileService fileService){
+    public ParsingAndIndexingServiceImpl(FileService fileService, IncidentIndexRepository incidentIndexRepository){
         this.fileService=fileService;
+        this.incidentIndexRepository=incidentIndexRepository;
     }
     @Override
-    public DocumentContentDto indexDocument(MultipartFile documentFile) {
+    public DocumentContentDto parseDocument(MultipartFile documentFile) {
 
         String documentContent=extractDocumentContent(documentFile);
 
@@ -36,18 +43,15 @@ public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService 
         String severity = extractField(documentContent, "Ozbiljnost incidenta:");
         String affectedOrganizationAddress = extractField(documentContent, "Adresa pogođene organizacije:");
 
-
-        DocumentContentDto documentContentDto=new DocumentContentDto(employeeName, employeeSurname, affectedOrganization, securityOrganization,
+        return new DocumentContentDto(employeeName, employeeSurname, affectedOrganization, securityOrganization,
                 getSeverityByName(severity),affectedOrganizationAddress);
-
-        return documentContentDto;
     }
     private Severity getSeverityByName(String name){
-        if(name.toLowerCase().equals("niska"))
+        if(name.equalsIgnoreCase("niska"))
             return Severity.NISKA;
-        else if (name.toLowerCase().equals("srednja")) {
+        else if (name.equalsIgnoreCase("srednja")) {
             return  Severity.SREDNJA;
-        }else if (name.toLowerCase().equals("visoka")){
+        }else if (name.equalsIgnoreCase("visoka")){
             return Severity.VISOKA;
         }else{
             return Severity.KRITICNA;
@@ -68,5 +72,27 @@ public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService 
         }
 
         return documentContent;
+    }
+
+    @Override
+    public String indexDocument(MultipartFile documentFile, IndexCreationDto indexCreationDto) {
+        var newIndex = new IncidentIndex();
+        newIndex.setEmployeeName(indexCreationDto.employeeName);
+        newIndex.setEmployeeSurname(indexCreationDto.employeeSurname);
+        newIndex.setSecurityOrganization(indexCreationDto.securityOrganization);
+        newIndex.setAffectedOrganization(indexCreationDto.affectedOrganization);
+        newIndex.setSeverity(indexCreationDto.severity.toString());
+        newIndex.setAffectedOrganizationAddress(indexCreationDto.affectedOrganizationAddress);
+        var serverFilename = fileService.store(documentFile, UUID.randomUUID().toString());
+        newIndex.setFilePath(serverFilename);
+
+        try {
+            newIndex.setVectorizedContent(VectorizationUtil.getEmbedding(extractDocumentContent(documentFile)));
+        } catch (TranslateException e) {
+            log.error("Could not calculate vector representation for document.");
+        }
+        incidentIndexRepository.save(newIndex);
+
+        return serverFilename;
     }
 }

@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { DocumentContentDto, DocumentService } from './document.service';
 
-
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -43,7 +42,7 @@ export class HomeComponent {
           severity: data.Severity,
           affectedOrganizationAddress: data.AffectedOrganizationAddress,
         };
-        this.documentForm.setValue(formData); // Ovo postavlja sve vrednosti
+        this.documentForm.setValue(formData); 
         this.isFileUploaded = true;
       });
     }
@@ -51,9 +50,23 @@ export class HomeComponent {
   
 
   onSubmit(): void {
-    if (this.documentForm.valid) {
+    if (this.documentForm.valid && this.selectedFile) {
       const updatedData = this.documentForm.value;
-      console.log('Updated Document Data:', updatedData);
+  
+      this.documentService.submitDocument(updatedData, this.selectedFile).subscribe({
+        next: () => {
+          console.log('Data and document successfully sent to the backend.');
+          alert('Document and data submitted successfully!');
+          window.location.reload();
+        },
+        error: (err) => {
+          console.error('Error submitting document and data:', err);
+          alert('Failed to submit data. Please try again.');
+        },
+      });
+    } else {
+      alert('Please upload a document and fill out all required fields.');
     }
   }
+  
 }

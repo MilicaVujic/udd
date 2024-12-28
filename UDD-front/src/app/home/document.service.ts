@@ -22,6 +22,15 @@ export class DocumentService {
   uploadDocument(file: File): Observable<DocumentContentDto> {
     const formData = new FormData();
     formData.append('multipartFile', file);
-    return this.http.post<DocumentContentDto>(this.apiUrl, formData);
+    return this.http.post<DocumentContentDto>(this.apiUrl+"/parse", formData);
   }
+
+  submitDocument(data: DocumentContentDto, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('document', file); 
+    formData.append('data', JSON.stringify(data)); 
+  
+    return this.http.post(`${this.apiUrl}`, formData);
+  }
+  
 }

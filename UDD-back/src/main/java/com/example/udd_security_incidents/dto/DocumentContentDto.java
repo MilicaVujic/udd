@@ -11,7 +11,6 @@ public class DocumentContentDto {
     public Severity Severity;
     public String AffectedOrganizationAddress;
     public DocumentContentDto(){}
-
     public DocumentContentDto(String employeeName, String employeeSurname, String securityOrganization, String affectedOrganization, com.example.udd_security_incidents.model.Severity severity, String affectedOrganizationAddress) {
         EmployeeName = employeeName;
         EmployeeSurname = employeeSurname;
@@ -20,4 +19,5 @@ public class DocumentContentDto {
         Severity = severity;
         AffectedOrganizationAddress = affectedOrganizationAddress;
     }
+
 }
