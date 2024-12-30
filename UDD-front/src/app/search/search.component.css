@@ -1,0 +1,119 @@
+.search-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .search-input {
+    width: 97%;
+    height: 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 10px;
+  }
+  
+  .search-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 5px rgba(13, 110, 253, 0.5);
+    outline: none;
+  }
+  
+  .search-button {
+    width: 100%;
+    height: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #0d6efd;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  
+  .search-button:hover {
+    background-color: #0b5ed7;
+    cursor: pointer;
+  }
+  
+  .result-card {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  
+  .result-card p {
+    margin-bottom: 0.5rem;
+    color: #555;
+  }
+  
+  .radio-group label {
+    font-size: 14px;
+  }
+  
+  .radio-group .text-primary {
+    color: #0d6efd;
+    font-weight: bold;
+  }
+  
+  .text-center {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: x-large;
+  }
+  
+  .btn-download {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+  }
+  
+  .btn-download:hover {
+    background-color: #0b5ed7;
+    cursor: pointer;
+  }
+
+  .sso{
+    margin-left: 1.5%;
+  }
+
+  .search-type-label input[type="radio"] {
+    appearance: none; /* Uklanja podrazumevani stil */
+    width: 16px;
+    height: 16px;
+    border: 2px solid #0d6efd; /* Plava ivica */
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  
+  .search-type-label input[type="radio"]:hover {
+    border-color: #0b5ed7; /* Tamnija plava prilikom hovera */
+  }
+  
+  .search-type-label input[type="radio"]:checked {
+    background-color: #0d6efd; /* Plava pozadina kada je selektovano */
+    border-color: #0d6efd;
+  }
+  
+  .search-type-label input[type="radio"]:checked::before {
+    content: "";
+    display: block;
+    width: 8px;
+    height: 8px;
+    background-color: #ffffff; /* Bela unutrašnja tačka */
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  

@@ -1,24 +1,19 @@
 package com.example.udd_security_incidents.indexmodel;
 
-import com.example.udd_security_incidents.dto.SearchQueryDTO;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.elasticsearch.index.query.GeoDistanceQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.data.elasticsearch.annotations.*;
-import jakarta.persistence.Id;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(indexName = "incident_documents")
+@Document(indexName = "incident_index")
 @Setting(settingPath = "/configuration/serbian-analyzer-config.json")
-
-public class IncidentIndex {
-
+public class IncidentDocumentIndex {
     @Id
     private String id;
 

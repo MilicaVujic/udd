@@ -4,6 +4,7 @@ import ai.djl.translate.TranslateException;
 import com.example.udd_security_incidents.dto.DocumentContentDto;
 import com.example.udd_security_incidents.dto.IndexCreationDto;
 import com.example.udd_security_incidents.exceptionhandling.exception.LoadingException;
+import com.example.udd_security_incidents.indexmodel.IncidentDocumentIndex;
 import com.example.udd_security_incidents.indexmodel.IncidentIndex;
 import com.example.udd_security_incidents.indexrepository.IncidentIndexRepository;
 import com.example.udd_security_incidents.model.Severity;
@@ -37,13 +38,12 @@ public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService 
         String documentContent=extractDocumentContent(documentFile);
 
         String employeeName = extractField(documentContent, "Ime zaposlenog:");
-        String employeeSurname = extractField(documentContent, "Prezime zaposlenog:");
         String affectedOrganization = extractField(documentContent, "Naziv pogođene organizacije:");
         String securityOrganization = extractField(documentContent, "Naziv bezbednosne organizacije:");
         String severity = extractField(documentContent, "Ozbiljnost incidenta:");
         String affectedOrganizationAddress = extractField(documentContent, "Adresa pogođene organizacije:");
 
-        return new DocumentContentDto(employeeName, employeeSurname, affectedOrganization, securityOrganization,
+        return new DocumentContentDto(employeeName,affectedOrganization, securityOrganization,
                 getSeverityByName(severity),affectedOrganizationAddress);
     }
     private Severity getSeverityByName(String name){
@@ -76,9 +76,8 @@ public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService 
 
     @Override
     public String indexDocument(MultipartFile documentFile, IndexCreationDto indexCreationDto) {
-        var newIndex = new IncidentIndex();
+        var newIndex = new IncidentDocumentIndex();
         newIndex.setEmployeeName(indexCreationDto.employeeName);
-        newIndex.setEmployeeSurname(indexCreationDto.employeeSurname);
         newIndex.setSecurityOrganization(indexCreationDto.securityOrganization);
         newIndex.setAffectedOrganization(indexCreationDto.affectedOrganization);
         newIndex.setSeverity(indexCreationDto.severity.toString());

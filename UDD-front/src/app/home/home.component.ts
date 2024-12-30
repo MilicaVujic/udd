@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { DocumentContentDto, DocumentService } from './document.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -13,10 +14,13 @@ export class HomeComponent {
   selectedFile: File | null = null;
   isFileUploaded = false;
 
-  constructor(private fb: FormBuilder, private documentService: DocumentService) {
+  constructor(
+    private fb: FormBuilder,
+    private documentService: DocumentService,
+    private router: Router // Inject Router
+  ) {
     this.documentForm = this.fb.group({
       employeeName: [''],
-      employeeSurname: [''],
       securityOrganization: [''],
       affectedOrganization: [''],
       severity: ['NISKA'], // Default value
@@ -36,23 +40,21 @@ export class HomeComponent {
       this.documentService.uploadDocument(this.selectedFile).subscribe((data) => {
         const formData = {
           employeeName: data.EmployeeName,
-          employeeSurname: data.EmployeeSurname,
           securityOrganization: data.SecurityOrganization,
           affectedOrganization: data.AffectedOrganization,
           severity: data.Severity,
           affectedOrganizationAddress: data.AffectedOrganizationAddress,
         };
-        this.documentForm.setValue(formData); 
+        this.documentForm.setValue(formData);
         this.isFileUploaded = true;
       });
     }
   }
-  
 
   onSubmit(): void {
     if (this.documentForm.valid && this.selectedFile) {
       const updatedData = this.documentForm.value;
-  
+
       this.documentService.submitDocument(updatedData, this.selectedFile).subscribe({
         next: () => {
           console.log('Data and document successfully sent to the backend.');
@@ -68,5 +70,8 @@ export class HomeComponent {
       alert('Please upload a document and fill out all required fields.');
     }
   }
-  
+
+  goToSearchPage(): void {
+    this.router.navigate(['/search']);
+  }
 }

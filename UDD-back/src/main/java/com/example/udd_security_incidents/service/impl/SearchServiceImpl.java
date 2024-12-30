@@ -6,14 +6,17 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchPhraseQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import com.example.udd_security_incidents.dto.SearchDto;
 import com.example.udd_security_incidents.exceptionhandling.exception.MalformedQueryException;
 import com.example.udd_security_incidents.indexmodel.DummyIndex;
+import com.example.udd_security_incidents.indexmodel.IncidentDocumentIndex;
+import com.example.udd_security_incidents.indexmodel.IncidentIndex;
+import com.example.udd_security_incidents.indexrepository.IncidentIndexRepository;
+import com.example.udd_security_incidents.model.SearchType;
 import com.example.udd_security_incidents.service.interfaces.SearchService;
 import com.example.udd_security_incidents.util.VectorizationUtil;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import joptsimple.internal.Strings;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +35,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class SearchServiceImpl implements SearchService {
+    private final IncidentIndexRepository incidentIndexRepository;
 
     private final ElasticsearchOperations elasticsearchTemplate;
 
-
+/*
     @Override
     public Page<DummyIndex> simpleSearch(List<String> keywords, Pageable pageable, boolean isKNN) {
         if (isKNN) {
@@ -54,7 +58,7 @@ public class SearchServiceImpl implements SearchService {
 
         return runQuery(searchQueryBuilder.build());
     }
-
+*/
     public Page<DummyIndex> searchByVector(float[] queryVector) {
         Float[] floatObjects = new Float[queryVector.length];
         for (int i = 0; i < queryVector.length; i++) {
@@ -83,7 +87,7 @@ public class SearchServiceImpl implements SearchService {
 
         return (Page<DummyIndex>) SearchHitSupport.unwrapSearchHits(searchHitsPaged);
     }
-
+/*
     @Override
     public Page<DummyIndex> advancedSearch(List<String> expression, Pageable pageable) {
         if (expression.size() != 3) {
@@ -98,6 +102,45 @@ public class SearchServiceImpl implements SearchService {
 
         return runQuery(searchQueryBuilder.build());
     }
+*/
+    @Override
+    public Page<IncidentDocumentIndex> search(SearchDto searchDto, Pageable pageable) {
+        if(searchDto.getType().equals(SearchType.SIMPLE)){
+            List<String> tokens = new ArrayList<>(Arrays.asList(searchDto.getSearchText().split(",")));
+            tokens.replaceAll(String::trim);
+
+            if(tokens.stream().anyMatch(token -> token.contains("employee_name"))) {
+                return incidentIndexRepository.getIncidentIndicesByEmployeeNameAndSeverity(tokens.get(0).split(":")[1].trim()
+                        , tokens.get(1).split(":")[1].trim(), pageable);
+            }
+            else{
+                return incidentIndexRepository.getIncidentIndicesBySecurityOrganizationAndAffectedOrganization(tokens.get(0).split(":")[1].trim()
+                        , tokens.get(1).split(":")[1].trim(), pageable);
+            }
+        } else if(searchDto.getType().equals(SearchType.KNN)){
+            return null;
+        } else if (searchDto.getType().equals(SearchType.FULL)) {
+            return null;
+        }else{
+            return null;
+        }
+    }
+
+    private Query buildSimpleQuery(List<String> tokens) {
+        return BoolQuery.of(q -> q.must(mb -> mb.bool(b -> {
+            tokens.forEach(token -> {
+                String[] parts = token.split(":");
+                if (parts.length == 2) {
+                    String field = parts[0].trim();
+                    String value = parts[1].trim();
+                    b.should(sb -> sb.term(m -> m.field(field).value(value)));
+                }
+            });
+            return b;
+        })))._toQuery();
+    }
+
+/*
 
     private Query buildSimpleSearchQuery(List<String> tokens) {
         return BoolQuery.of(q -> q.must(mb -> mb.bool(b -> {
@@ -188,6 +231,8 @@ public class SearchServiceImpl implements SearchService {
         })))._toQuery();
     }
 
+    */
+/*
     private Page<DummyIndex> runQuery(NativeQuery searchQuery) {
 
         var searchHits = elasticsearchTemplate.search(searchQuery, DummyIndex.class,
@@ -197,8 +242,16 @@ public class SearchServiceImpl implements SearchService {
 
         return (Page<DummyIndex>) SearchHitSupport.unwrapSearchHits(searchHitsPaged);
     }
+*/
+private Page<IncidentIndex> runQuery(NativeQuery searchQuery) {
 
+    var searchHits = elasticsearchTemplate.search(searchQuery, IncidentIndex.class,
+            IndexCoordinates.of("incident_documents"));
 
+    var searchHitsPaged = SearchHitSupport.searchPageFor(searchHits, searchQuery.getPageable());
+
+    return (Page<IncidentIndex>) SearchHitSupport.unwrapSearchHits(searchHitsPaged);
+}
     //////////////////////////////
  /*   private Query buildSearchQuery(List<String> tokens) {
         Stack<Query> stack = new Stack<>();

@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 
 export interface DocumentContentDto {
   EmployeeName: string;
-  EmployeeSurname: string;
   SecurityOrganization: string;
   AffectedOrganization: string;
   Severity: 'NISKA' | 'SREDNJA' | 'VISOKA' | 'KRITICNA';

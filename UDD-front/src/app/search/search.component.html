@@ -1,0 +1,108 @@
+<div class="search-container p-4">
+    <br>
+  <p class="text-center">
+    Input search text and choose a search type:
+  </p>
+
+  <!-- Unos teksta -->
+  <div class="form-group mb-4">
+    <input 
+      type="text" 
+      [(ngModel)]="query" 
+      placeholder="Enter your query here..." 
+      class="form-control shadow-sm search-input"
+    />
+  </div>
+
+  <br>
+  <!-- Tip pretrage -->
+  <div class="form-group mb-4 d-flex justify-content-center">
+    <div class="radio-group wider-radio-group">
+      <label class="search-type-label">
+        <input 
+          type="radio" 
+          name="searchType" 
+          value="SIMPLE" 
+          [(ngModel)]="searchType" 
+          (change)="onSearchTypeChange()" 
+        /> SIMPLE
+      </label>
+      <label class="search-type-label">
+        <input 
+          type="radio" 
+          name="searchType" 
+          value="FULL" 
+          [(ngModel)]="searchType" 
+          (change)="onSearchTypeChange()" 
+        /> FULL
+      </label>
+      <label class="search-type-label">
+        <input 
+          type="radio" 
+          name="searchType" 
+          value="KNN" 
+          [(ngModel)]="searchType" 
+          (change)="onSearchTypeChange()" 
+        /> KNN
+      </label>
+      <label class="search-type-label">
+        <input 
+          type="radio" 
+          name="searchType" 
+          value="BOOLEAN" 
+          [(ngModel)]="searchType" 
+          (change)="onSearchTypeChange()" 
+        /> BOOLEAN
+      </label>
+    </div>
+  </div>
+
+  <!-- Opcije za SIMPLE pretragu -->
+  <div *ngIf="searchType === 'SIMPLE'" class="form-group mb-4">
+    <div class="radio-group d-flex justify-content-start align-items-center">
+      <p class="sso">  Simple Search Options:</p>
+      <label class="text-primary">
+        <input 
+          type="radio" 
+          name="simpleSearchType" 
+          value="EMPLOYEE_AND_SEVERITY" 
+          [(ngModel)]="simpleSearchType" 
+          (change)="onSimpleSearchOptionChange()" 
+        /> Employee and Severity
+      </label>
+      <label class="text-primary ms-4">
+        <input 
+          type="radio" 
+          name="simpleSearchType" 
+          value="SECURITY_AND_AFFECTED" 
+          [(ngModel)]="simpleSearchType" 
+          (change)="onSimpleSearchOptionChange()" 
+        /> Security and Affected Organization
+      </label>
+    </div>
+  </div>
+<br>
+  <!-- Taster za pretragu -->
+  <div class="form-group">
+    <button class="btn btn-primary search-button" (click)="onSearch()">SEARCH</button>
+  </div>
+
+  <br>
+  <div *ngIf="results.length > 0" class="mt-4">
+    <h3 class="mb-3">Search Results:</h3>
+    <div *ngFor="let result of results" class="result-card p-4 mb-4 shadow-sm rounded">
+      <p class="mb-2"><b>Employee name and surname:</b> {{ result.employeeName }}</p>
+      <p class="mb-2"><b>Security Organization:</b> {{ result.securityOrganization }}</p>
+      <p class="mb-2"><b>Affected Organization:</b> {{ result.affectedOrganization }}</p>
+      <p class="mb-2"><b>Severity:</b> {{ result.severity }}</p>
+      <p *ngIf="result.summary" class="mb-2" [innerHTML]="highlightText(result.summary, query)"></p>
+      
+      <div *ngIf="result.filePath">
+        <button 
+          class="btn-download" 
+          (click)="downloadPDF(result.filePath)"
+        >
+          Download PDF
+        </button>
+      </div>
+</div>
