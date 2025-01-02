@@ -1,31 +1,30 @@
 {
-  "settings": {
-    "analysis": {
-      "filter": {
-        "serbian_stop": {
-          "type":       "stop",
-          "stopwords":  "_serbian_"
-        },
-        "serbian_keywords": {
-          "type":       "keyword_marker",
-          "keywords":   ["пример"]
-        },
-        "serbian_stemmer": {
-          "type":       "stemmer",
-          "language":   "serbian"
-        }
+  "analysis": {
+    "analyzer": {
+      "serbian_simple": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "filter": [
+          "serbian_cyrillic_to_latinic",
+          "serbian_stop",
+          "serbian_stemmer",
+          "icu_folding",
+          "lowercase"
+        ]
+      }
+    },
+    "filter": {
+      "serbian_cyrillic_to_latinic": {
+        "type": "icu_transform",
+        "id": "Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC"
       },
-      "analyzer": {
-        "rebuilt_serbian": {
-          "tokenizer":  "standard",
-          "filter": [
-            "lowercase",
-            "serbian_stop",
-            "serbian_keywords",
-            "serbian_stemmer",
-            "serbian_normalization"
-          ]
-        }
+      "serbian_stop": {
+        "type":       "stop",
+        "stopwords":  "_serbian_"
+      },
+      "serbian_stemmer": {
+        "type":       "stemmer",
+        "language":   "serbian"
       }
     }
   }

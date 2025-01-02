@@ -4,9 +4,8 @@ import ai.djl.translate.TranslateException;
 import com.example.udd_security_incidents.dto.DocumentContentDto;
 import com.example.udd_security_incidents.dto.IndexCreationDto;
 import com.example.udd_security_incidents.exceptionhandling.exception.LoadingException;
-import com.example.udd_security_incidents.indexmodel.IncidentDocumentIndex;
-import com.example.udd_security_incidents.indexmodel.IncidentIndex;
-import com.example.udd_security_incidents.indexrepository.IncidentIndexRepository;
+import com.example.udd_security_incidents.indexmodel.IncidentsIndex;
+import com.example.udd_security_incidents.indexrepository.IncidentsIndexRepository;
 import com.example.udd_security_incidents.model.Severity;
 import com.example.udd_security_incidents.service.interfaces.FileService;
 import com.example.udd_security_incidents.service.interfaces.ParsingAndIndexingService;
@@ -25,10 +24,10 @@ import java.util.UUID;
 @Slf4j
 public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService {
     private final FileService fileService;
-    private final IncidentIndexRepository incidentIndexRepository;
+    private final IncidentsIndexRepository incidentIndexRepository;
 
     @Autowired
-    public ParsingAndIndexingServiceImpl(FileService fileService, IncidentIndexRepository incidentIndexRepository){
+    public ParsingAndIndexingServiceImpl(FileService fileService, IncidentsIndexRepository incidentIndexRepository){
         this.fileService=fileService;
         this.incidentIndexRepository=incidentIndexRepository;
     }
@@ -76,7 +75,7 @@ public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService 
 
     @Override
     public String indexDocument(MultipartFile documentFile, IndexCreationDto indexCreationDto) {
-        var newIndex = new IncidentDocumentIndex();
+        var newIndex = new IncidentsIndex();
         newIndex.setEmployeeName(indexCreationDto.employeeName);
         newIndex.setSecurityOrganization(indexCreationDto.securityOrganization);
         newIndex.setAffectedOrganization(indexCreationDto.affectedOrganization);
