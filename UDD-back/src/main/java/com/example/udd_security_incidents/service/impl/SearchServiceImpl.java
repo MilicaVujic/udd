@@ -44,26 +44,6 @@ public class SearchServiceImpl implements SearchService {
 
     private final ElasticsearchOperations elasticsearchTemplate;
 
-/*
-    @Override
-    public Page<DummyIndex> simpleSearch(List<String> keywords, Pageable pageable, boolean isKNN) {
-        if (isKNN) {
-            try {
-                return searchByVector(VectorizationUtil.getEmbedding(Strings.join(keywords, " ")));
-            } catch (TranslateException e) {
-                log.error("Vectorization failed");
-                return Page.empty();
-            }
-        }
-
-        System.out.println(buildSimpleSearchQuery(keywords).toString());
-        var searchQueryBuilder =
-            new NativeQueryBuilder().withQuery(buildSimpleSearchQuery(keywords))
-                .withPageable(pageable);
-
-        return runQuery(searchQueryBuilder.build());
-    }
-*/
 public Page<IncidentsIndex> searchByVector(float[] queryVector) {
     if (queryVector == null || queryVector.length == 0) {
         throw new IllegalArgumentException("Query vector cannot be null or empty.");
@@ -274,13 +254,13 @@ private QueryBuilder buildSearchQuery(List<String> tokens) {
 
 
 
-
+/*
     private List<String> parseQueryString(String queryString) {
         // Podeli string po razmacima (možeš dodati i naprednije parsiranje ako je potrebno)
         return List.of(queryString.split("\\s+"));
     }
 
-
+*/
     private IncidentsIndex applyHighlights(SearchHit<IncidentsIndex> hit, IncidentsIndex result) {
         // Dinamički obradi polja sa highlight-om
         for (String field : hit.getHighlightFields().keySet()) {
@@ -351,9 +331,23 @@ private QueryBuilder buildSearchQuery(List<String> tokens) {
 
         return postfix;
     }
-/*
-    private QueryBuilder evaluatePostfix(List<String> postfixTokens) {
-        Stack<QueryBuilder> stack = new Stack<>();
+
+    private Query buildSearchQuery(List<String> tokens) {
+        // Define operator priority
+        Map<String, Integer> operatorPriority = Map.of("NOT", 3, "AND", 2, "OR", 1);
+
+        List<String> postfixTokens = infixToPostfix(tokens, operatorPriority);
+
+        return evaluatePostfix(postfixTokens);
+    }
+    private List<String> parseQueryString(String queryString) {
+        String[] parts = queryString.split(",");
+        List<String> tokens = new ArrayList<>();
+        Collections.addAll(tokens, parts);
+        return tokens;
+    }
+    private Query evaluatePostfix(List<String> postfixTokens) {
+        Stack<Criteria> stack = new Stack<>();
 
         for (String token : postfixTokens) {
             if (token.equals("NOT")) {
@@ -361,25 +355,33 @@ private QueryBuilder buildSearchQuery(List<String> tokens) {
                 if (stack.isEmpty()) {
                     throw new IllegalArgumentException("Invalid query: NOT operator requires one operand.");
                 }
-                QueryBuilder operand = stack.pop();
-                stack.push(QueryBuilders.boolQuery().mustNot(operand));
-            } else if (token.equals("AND") || token.equals("OR")) {
-                // Binary operator
+                Criteria operand = stack.pop();
+                stack.push(operand.not()); // Apply negation correctly
+            } else if (token.equals("AND")) {
+                // Binary AND operator
                 if (stack.size() < 2) {
-                    throw new IllegalArgumentException("Invalid query: " + token + " operator requires two operands.");
+                    throw new IllegalArgumentException("Invalid query: AND operator requires two operands.");
                 }
-                QueryBuilder right = stack.pop();
-                QueryBuilder left = stack.pop();
-                stack.push(token.equals("AND")
-                        ? QueryBuilders.boolQuery().must(left).must(right)
-                        : QueryBuilders.boolQuery().should(left).should(right));
+                Criteria right = stack.pop();
+                Criteria left = stack.pop();
+                stack.push(left.and(right)); // Combine with AND
+            } else if (token.equals("OR")) {
+                // Binary OR operator
+                if (stack.size() < 2) {
+                    throw new IllegalArgumentException("Invalid query: OR operator requires two operands.");
+                }
+                Criteria right = stack.pop();
+                Criteria left = stack.pop();
+                stack.push(left.or(right)); // Combine with OR
             } else {
                 // Operand (e.g., employee_name:Milica)
                 String[] parts = token.split(":");
                 if (parts.length != 2) {
                     throw new IllegalArgumentException("Invalid operand: " + token);
                 }
-                stack.push(buildMatchQuery(parts[1], parts[0])); // Adjusted order: value, field
+                String field = parts[0];
+                String value = parts[1];
+                stack.push(Criteria.where(field).is(value)); // Build query for operand
             }
         }
 
@@ -387,57 +389,9 @@ private QueryBuilder buildSearchQuery(List<String> tokens) {
             throw new IllegalArgumentException("Invalid query: unmatched operators or operands.");
         }
 
-        return stack.pop();
-    }
-*/
-private Query evaluatePostfix(List<String> postfixTokens) {
-    Stack<Criteria> stack = new Stack<>();
-
-    for (String token : postfixTokens) {
-        if (token.equals("NOT")) {
-            // Unary operator
-            if (stack.isEmpty()) {
-                throw new IllegalArgumentException("Invalid query: NOT operator requires one operand.");
-            }
-            Criteria operand = stack.pop();
-            stack.push(new Criteria().and(operand).not());
-        } else if (token.equals("AND") || token.equals("OR")) {
-            // Binary operator
-            if (stack.size() < 2) {
-                throw new IllegalArgumentException("Invalid query: " + token + " operator requires two operands.");
-            }
-            Criteria right = stack.pop();
-            Criteria left = stack.pop();
-            stack.push(token.equals("AND") ? left.and(right) : left.or(right));
-        } else {
-            // Operand (e.g., employee_name:Milica)
-            String[] parts = token.split(":");
-            if (parts.length != 2) {
-                throw new IllegalArgumentException("Invalid operand: " + token);
-            }
-            String field = parts[0];
-            String value = parts[1];
-            stack.push(Criteria.where(field).is(value));
-        }
+        // Wrap Criteria into a Query
+        return new CriteriaQuery(stack.pop());
     }
 
-    if (stack.size() != 1) {
-        throw new IllegalArgumentException("Invalid query: unmatched operators or operands.");
-    }
-
-    // Wrap Criteria into a Query
-    return new CriteriaQuery(stack.pop());
-}
-
-    private Query buildSearchQuery(List<String> tokens) {
-        // Define operator priority
-        Map<String, Integer> operatorPriority = Map.of("NOT", 3, "AND", 2, "OR", 1);
-
-        // Step 1: Convert infix to postfix notation
-        List<String> postfixTokens = infixToPostfix(tokens, operatorPriority);
-
-        // Step 2: Evaluate the postfix tokens to construct a CriteriaQuery
-        return evaluatePostfix(postfixTokens);
-    }
 
 }
