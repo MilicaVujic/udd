@@ -91,6 +91,9 @@ public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService 
         }
         incidentIndexRepository.save(newIndex);
 
+        String grad=indexCreationDto.affectedOrganizationAddress.split(",")[0];
+        log.info("GRAD:{} ZAPOSLENI:{} ORGANIZATION:{} Incident processed successfully", grad, indexCreationDto.employeeName, indexCreationDto.affectedOrganization);
+
         return serverFilename;
     }
 }
