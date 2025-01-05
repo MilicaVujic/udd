@@ -11,9 +11,9 @@ import org.springframework.data.elasticsearch.annotations.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(indexName = "incidents_index")
+@Document(indexName = "incidents-index")
 @Setting(settingPath = "/configuration/serbian-analyzer-config.json")
-public class IncidentsIndex {
+public class IncidentIndex {
     @Id
     private String id;
 
@@ -37,6 +37,9 @@ public class IncidentsIndex {
 
     @Field(type = FieldType.Dense_Vector, dims = 384, similarity = "cosine")
     private float[] vectorizedContent;
+
+    @Field(type = FieldType.Text, store = true, name = "content")
+    private String content;
 
     @GeoPointField
     @Field(store = true, name = "organization_location")

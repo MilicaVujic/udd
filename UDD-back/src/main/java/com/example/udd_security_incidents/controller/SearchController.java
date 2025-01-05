@@ -2,7 +2,7 @@ package com.example.udd_security_incidents.controller;
 
 import ai.djl.translate.TranslateException;
 import com.example.udd_security_incidents.dto.SearchDto;
-import com.example.udd_security_incidents.indexmodel.IncidentsIndex;
+import com.example.udd_security_incidents.indexmodel.IncidentIndex;
 import com.example.udd_security_incidents.service.interfaces.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.nd4j.shade.jackson.core.JsonProcessingException;
@@ -23,7 +23,7 @@ public class SearchController {
 
     private final SearchService searchService;
     @PostMapping
-    public ResponseEntity<Page<IncidentsIndex>> search(@RequestBody SearchDto searchQuery) throws TranslateException, JsonProcessingException {
+    public ResponseEntity<Page<IncidentIndex>> search(@RequestBody SearchDto searchQuery) throws TranslateException, JsonProcessingException {
         return new ResponseEntity<>(searchService.search(searchQuery, new Pageable() {
             @Override
             public int getPageNumber() {

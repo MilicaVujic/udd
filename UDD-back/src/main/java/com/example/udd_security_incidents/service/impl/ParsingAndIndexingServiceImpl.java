@@ -4,7 +4,7 @@ import ai.djl.translate.TranslateException;
 import com.example.udd_security_incidents.dto.DocumentContentDto;
 import com.example.udd_security_incidents.dto.IndexCreationDto;
 import com.example.udd_security_incidents.exceptionhandling.exception.LoadingException;
-import com.example.udd_security_incidents.indexmodel.IncidentsIndex;
+import com.example.udd_security_incidents.indexmodel.IncidentIndex;
 import com.example.udd_security_incidents.indexrepository.IncidentsIndexRepository;
 import com.example.udd_security_incidents.model.Severity;
 import com.example.udd_security_incidents.service.interfaces.FileService;
@@ -78,7 +78,7 @@ public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService 
 
     @Override
     public String indexDocument(MultipartFile documentFile, IndexCreationDto indexCreationDto) {
-        var newIndex = new IncidentsIndex();
+        var newIndex = new IncidentIndex();
         newIndex.setEmployeeName(indexCreationDto.employeeName);
         newIndex.setSecurityOrganization(indexCreationDto.securityOrganization);
         newIndex.setAffectedOrganization(indexCreationDto.affectedOrganization);
@@ -89,6 +89,7 @@ public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService 
 
         GeoPoint geoPoint=geoLocationService.getGeoPointForAddress(indexCreationDto.affectedOrganizationAddress);
         newIndex.setOrganizationLocation(geoPoint);
+        newIndex.setContent(extractDocumentContent(documentFile));
         try {
             newIndex.setVectorizedContent(VectorizationUtil.getEmbedding(extractDocumentContent(documentFile)));
         } catch (TranslateException e) {
@@ -96,8 +97,8 @@ public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService 
         }
         incidentIndexRepository.save(newIndex);
 
-        String grad=indexCreationDto.affectedOrganizationAddress.split(",")[0];
-        log.info("GRAD:{} ZAPOSLENI:{} ORGANIZATION:{} Incident processed successfully", grad, indexCreationDto.employeeName, indexCreationDto.affectedOrganization);
+        String grad=indexCreationDto.affectedOrganizationAddress.split(",")[1];
+        log.info("GRAD:{} ZAPOSLENI:{} ORGANIZATION:{} Incident processed successfully", grad, indexCreationDto.employeeName.split(" ")[0], indexCreationDto.affectedOrganization);
 
         return serverFilename;
     }
