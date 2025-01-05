@@ -22,20 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class SearchController {
 
     private final SearchService searchService;
-/*
-    @PostMapping("/simple")
-    public Page<DummyIndex> simpleSearch(@RequestParam Boolean isKnn,
-                                         @RequestBody SearchQueryDTO simpleSearchQuery,
-                                         Pageable pageable) {
-        return searchService.simpleSearch(simpleSearchQuery.keywords(), pageable, isKnn);
-    }
-
-    @PostMapping("/advanced")
-    public Page<DummyIndex> advancedSearch(@RequestBody SearchQueryDTO advancedSearchQuery,
-                                           Pageable pageable) {
-        return searchService.advancedSearch(advancedSearchQuery.keywords(), pageable);
-    }
-    */
     @PostMapping
     public ResponseEntity<Page<IncidentsIndex>> search(@RequestBody SearchDto searchQuery) throws TranslateException, JsonProcessingException {
         return new ResponseEntity<>(searchService.search(searchQuery, new Pageable() {

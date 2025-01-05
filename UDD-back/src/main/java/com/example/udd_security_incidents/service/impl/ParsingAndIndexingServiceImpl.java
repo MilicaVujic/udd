@@ -13,6 +13,7 @@ import com.example.udd_security_incidents.util.VectorizationUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.elasticsearch.common.geo.GeoPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,11 +26,13 @@ import java.util.UUID;
 public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService {
     private final FileService fileService;
     private final IncidentsIndexRepository incidentIndexRepository;
+    private final GeoLocationService geoLocationService;
 
     @Autowired
-    public ParsingAndIndexingServiceImpl(FileService fileService, IncidentsIndexRepository incidentIndexRepository){
+    public ParsingAndIndexingServiceImpl(FileService fileService, IncidentsIndexRepository incidentIndexRepository, GeoLocationService geoLocationService){
         this.fileService=fileService;
         this.incidentIndexRepository=incidentIndexRepository;
+        this.geoLocationService = geoLocationService;
     }
     @Override
     public DocumentContentDto parseDocument(MultipartFile documentFile) {
@@ -84,6 +87,8 @@ public class ParsingAndIndexingServiceImpl implements ParsingAndIndexingService 
         var serverFilename = fileService.store(documentFile, UUID.randomUUID().toString());
         newIndex.setFilePath(serverFilename);
 
+        GeoPoint geoPoint=geoLocationService.getGeoPointForAddress(indexCreationDto.affectedOrganizationAddress);
+        newIndex.setOrganizationLocation(geoPoint);
         try {
             newIndex.setVectorizedContent(VectorizationUtil.getEmbedding(extractDocumentContent(documentFile)));
         } catch (TranslateException e) {

@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 export interface SearchContentDto {
   searchText: string;
   type: 'SIMPLE'|'KNN'|'BOOLEAN'|'FULL';
+  city:string;
 }
 
 

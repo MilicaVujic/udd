@@ -1,8 +1,11 @@
 package com.example.udd_security_incidents.service.impl;
 
 import ai.djl.translate.TranslateException;
+import co.elastic.clients.elasticsearch._types.GeoLocation;
 import co.elastic.clients.elasticsearch._types.KnnQuery;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.GeoDistanceQuery;
+import org.elasticsearch.common.geo.GeoPoint;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 
 
@@ -20,6 +23,7 @@ import com.example.udd_security_incidents.util.VectorizationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.Criteria;
@@ -42,8 +46,9 @@ public class SearchServiceImpl implements SearchService {
     private final IncidentsIndexRepository incidentIndexRepository;
 
     private final ElasticsearchOperations elasticsearchTemplate;
+    private final GeoLocationService geoLocationService;
 
-public Page<IncidentsIndex> searchByVector(float[] queryVector, Pageable pageable) {
+/*public Page<IncidentsIndex> searchByVector(float[] queryVector, Pageable pageable) {
     if (queryVector == null || queryVector.length == 0) {
         throw new IllegalArgumentException("Query vector cannot be null or empty.");
     }
@@ -88,7 +93,64 @@ public Page<IncidentsIndex> searchByVector(float[] queryVector, Pageable pageabl
     }
 
     return null;
+}*/
+public Page<IncidentsIndex> searchByVector(float[] queryVector, Pageable pageable, String cityName) {
+    if (queryVector == null || queryVector.length == 0) {
+        throw new IllegalArgumentException("Query vector cannot be null or empty.");
+    }
+
+    Float[] floatObjects = new Float[queryVector.length];
+    for (int i = 0; i < queryVector.length; i++) {
+        floatObjects[i] = queryVector[i];
+    }
+    List<Float> floatList = Arrays.stream(floatObjects).collect(Collectors.toList());
+
+    var knnQuery = new KnnQuery.Builder()
+            .field("vectorizedContent")
+            .queryVector(floatList)
+            .numCandidates(100)
+            .k(10)
+            .boost(100.0f)
+            .build();
+
+    NativeQueryBuilder queryBuilder = NativeQuery.builder()
+            .withKnnQuery(knnQuery)
+            .withMaxResults(1)
+            .withSearchType(null)
+            .withHighlightQuery(highlight());
+
+    if (cityName != null && !cityName.isEmpty()) {
+        GeoLocation location = geoLocationService.getGeoPointForCity(cityName); // Konverzija adrese u GeoPoint
+        queryBuilder.withFilter(new GeoDistanceQuery.Builder()
+                .field("organization_location")
+                .distance("50km")
+                .location(location)
+                .build()._toQuery());
+    }
+
+    var query = queryBuilder.build();
+
+    try {
+        SearchHits<IncidentsIndex> searchHits = elasticsearchTemplate.search(query, IncidentsIndex.class);
+
+        List<IncidentsIndex> summarizedResults = searchHits.stream()
+                .map(hit -> {
+                    IncidentsIndex result = hit.getContent();
+                    result = applyHighlights(hit, result);
+                    return result;
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        return new PageImpl<>(summarizedResults, pageable, searchHits.getTotalHits());
+    } catch (Exception e) {
+        log.error("Greška pri pretrazi u Elasticsearch-u", e);
+    }
+
+    return null;
 }
+
+
 
     private HighlightQuery highlight() {
         List<HighlightField> lista=new ArrayList<HighlightField>();
@@ -97,7 +159,7 @@ public Page<IncidentsIndex> searchByVector(float[] queryVector, Pageable pageabl
 
         return new HighlightQuery(new Highlight(lista), null);
     }
-
+/*
     @Override
 public Page<IncidentsIndex> search(SearchDto searchDto, Pageable pageable) throws TranslateException, JsonProcessingException {
     if (searchDto.getSearchText().isEmpty()) {
@@ -116,13 +178,55 @@ public Page<IncidentsIndex> search(SearchDto searchDto, Pageable pageable) throw
                     tokens.get(0).split(":")[1].trim(), tokens.get(1).split(":")[1].trim(), pageable);
         }
     } else if (searchDto.getType().equals(SearchType.KNN)) {
-        return searchByVector(VectorizationUtil.getEmbedding(searchDto.getSearchText()), pageable);
+        return searchByVector(VectorizationUtil.getEmbedding(searchDto.getSearchText()), pageable, searchDto.getCity());
     } else if (searchDto.getType().equals(SearchType.FULL)) {
         return Page.empty();
     } else {
         List<String> tokens = parseQueryString(searchDto.getSearchText());
 
         Query query = buildSearchQuery(tokens);
+
+        SearchHits<IncidentsIndex> searchHits = elasticsearchTemplate.search(query, IncidentsIndex.class);
+
+        List<IncidentsIndex> summarizedResults = searchHits.stream()
+                .map(hit -> {
+                    IncidentsIndex result = hit.getContent();
+                    result = applyHighlights(hit, result);
+                    return result;
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        return new PageImpl<>(summarizedResults, pageable, searchHits.getTotalHits());
+    }
+}
+*/
+@Override
+public Page<IncidentsIndex> search(SearchDto searchDto, Pageable pageable) throws TranslateException, JsonProcessingException {
+    if (searchDto.getSearchText().isEmpty()) {
+        return Page.empty();
+    }
+
+    String cityName = searchDto.getCity();
+
+    if (searchDto.getType().equals(SearchType.SIMPLE)) {
+        List<String> tokens = new ArrayList<>(Arrays.asList(searchDto.getSearchText().split(",")));
+        tokens.replaceAll(String::trim);
+
+        if (tokens.stream().anyMatch(token -> token.contains("employee_name"))) {
+            return incidentIndexRepository.getIncidentIndicesByEmployeeNameAndSeverity(
+                    tokens.get(0).split(":")[1].trim(), tokens.get(1).split(":")[1].trim(), pageable);
+        } else {
+            return incidentIndexRepository.getIncidentIndicesBySecurityOrganizationAndAffectedOrganization(
+                    tokens.get(0).split(":")[1].trim(), tokens.get(1).split(":")[1].trim(), pageable);
+        }    } else if (searchDto.getType().equals(SearchType.KNN)) {
+        return searchByVector(VectorizationUtil.getEmbedding(searchDto.getSearchText()), pageable, cityName);
+    } else if (searchDto.getType().equals(SearchType.FULL)) {
+        return Page.empty();
+    } else {
+        List<String> tokens = parseQueryString(searchDto.getSearchText());
+
+        Query query = buildSearchQuery(tokens, cityName);
 
         SearchHits<IncidentsIndex> searchHits = elasticsearchTemplate.search(query, IncidentsIndex.class);
 
@@ -202,7 +306,7 @@ public Page<IncidentsIndex> search(SearchDto searchDto, Pageable pageable) throw
 
         return postfix;
     }
-
+/*
     private Query buildSearchQuery(List<String> tokens) {
         Map<String, Integer> operatorPriority = Map.of("NOT", 3, "AND", 2, "OR", 1);
 
@@ -216,6 +320,32 @@ public Page<IncidentsIndex> search(SearchDto searchDto, Pageable pageable) throw
                 .build();
 
     }
+
+ */
+private Query buildSearchQuery(List<String> tokens, String cityName) {
+    Map<String, Integer> operatorPriority = Map.of("NOT", 3, "AND", 2, "OR", 1);
+
+    List<String> postfixTokens = infixToPostfix(tokens, operatorPriority);
+
+    NativeQueryBuilder queryBuilder = NativeQuery.builder()
+            .withQuery(evaluatePostfix(postfixTokens))
+            .withMaxResults(5)
+            .withSearchType(null)
+            .withHighlightQuery(highlight());
+
+    if (cityName != null && !cityName.isEmpty()) {
+        GeoLocation location = geoLocationService.getGeoPointForCity(cityName);
+        queryBuilder.withFilter(new GeoDistanceQuery.Builder()
+                .field("organization_location")
+                .distance("50km")
+                .location(location)
+                .build()._toQuery());
+    }
+
+    return queryBuilder.build();
+}
+
+
     private List<String> parseQueryString(String queryString) {
         String[] parts = queryString.split(",");
         List<String> tokens = new ArrayList<>();

@@ -8,15 +8,16 @@ import { SearchContentDto, SearchService } from './search.service';
 })
 export class SearchComponent {
   query: string = '';
+  city: string = ''; // Nova promenljiva za unos grada
   searchType: 'SIMPLE' | 'FULL' | 'KNN' | 'BOOLEAN' = 'BOOLEAN';
-  simpleSearchType: 'EMPLOYEE_AND_SEVERITY' | 'SECURITY_AND_AFFECTED' | null = null; 
+  simpleSearchType: 'EMPLOYEE_AND_SEVERITY' | 'SECURITY_AND_AFFECTED' | null = null;
   results: any[] = [];
 
   constructor(private searchService: SearchService) {}
 
   onSearchTypeChange() {
     if (this.searchType !== 'SIMPLE') {
-      this.simpleSearchType = null; // Reset the SIMPLE options if another type is chosen
+      this.simpleSearchType = null; // Resetovanje opcija za SIMPLE pretragu
     }
   }
 
@@ -31,7 +32,8 @@ export class SearchComponent {
   onSearch() {
     const searchPayload: SearchContentDto = {
       searchText: this.query,
-      type: this.searchType
+      type: this.searchType,
+      city: this.city // Dodavanje grada u SearchContentDto
     };
 
     this.searchService.search(searchPayload).subscribe(
@@ -63,7 +65,7 @@ export class SearchComponent {
 
   highlightText(text: string | undefined, query: string): string {
     if (!text) {
-      return ''; // Return an empty string if there's no text
+      return ''; // Prazan string ako nema teksta
     }
 
     const regex = new RegExp(query, 'gi');

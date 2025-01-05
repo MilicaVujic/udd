@@ -1,7 +1,6 @@
 package com.example.udd_security_incidents.controller;
 
 import com.example.udd_security_incidents.dto.*;
-import com.example.udd_security_incidents.service.interfaces.IndexingService;
 import com.example.udd_security_incidents.service.interfaces.ParsingAndIndexingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

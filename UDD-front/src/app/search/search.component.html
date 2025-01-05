@@ -1,5 +1,5 @@
 <div class="search-container p-4">
-    <br>
+  <br>
   <p class="text-center">
     Input search text and choose a search type:
   </p>
@@ -14,7 +14,16 @@
     />
   </div>
 
-  <br>
+  <!-- Unos grada -->
+  <div class="form-group mb-4">
+    <input 
+      type="text" 
+      [(ngModel)]="city" 
+      placeholder="Enter city here..." 
+      class="form-control shadow-sm search-input"
+    />
+  </div>
+
   <!-- Tip pretrage -->
   <div class="form-group mb-4 d-flex justify-content-center">
     <div class="radio-group wider-radio-group">
@@ -60,7 +69,7 @@
   <!-- Opcije za SIMPLE pretragu -->
   <div *ngIf="searchType === 'SIMPLE'" class="form-group mb-4">
     <div class="radio-group d-flex justify-content-start align-items-center">
-      <p class="sso">  Simple Search Options:</p>
+      <p class="sso">Simple Search Options:</p>
       <label class="text-primary">
         <input 
           type="radio" 
@@ -81,7 +90,7 @@
       </label>
     </div>
   </div>
-<br>
+
   <!-- Taster za pretragu -->
   <div class="form-group">
     <button class="btn btn-primary search-button" (click)="onSearch()">SEARCH</button>
@@ -96,7 +105,7 @@
       <p class="mb-2"><b>Affected Organization:</b> {{ result.affectedOrganization }}</p>
       <p class="mb-2"><b>Severity:</b> {{ result.severity }}</p>
       <p *ngIf="result.summary" class="mb-2" [innerHTML]="highlightText(result.summary, query)"></p>
-      
+
       <div *ngIf="result.filePath">
         <button 
           class="btn-download" 
@@ -105,4 +114,6 @@
           Download PDF
         </button>
       </div>
+    </div>
+  </div>
 </div>
